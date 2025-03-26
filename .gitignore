@@ -1,0 +1,35 @@
+# Dependencies
+/node_modules
+
+# Environment variables
+.env
+
+# access token
+github access token.txt
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Directory for instrumented libs
+lib-cov
+
+# Coverage directory
+coverage
+
+# IDE
+.idea
+.vscode
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
