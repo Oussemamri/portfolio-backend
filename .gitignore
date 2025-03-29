@@ -3,9 +3,18 @@
 
 # Environment variables
 .env
+.env.*
+!.env.example
 
-# access token
+# Access tokens and credentials
 github access token.txt
+*token*
+*secret*
+*credential*
+
+# Docker configuration with secrets
+docker-compose.yml
+!docker-compose.example.yml
 
 # Logs
 logs
