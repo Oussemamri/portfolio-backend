@@ -10,6 +10,7 @@ dotenv.config();
 // Import routes
 const contactRoutes = require('./routes/contact');
 const projectRoutes = require('./routes/projects');
+const projectRoutes = require('./routes/chat');
 
 // Initialize express
 const app = express();
@@ -22,6 +23,7 @@ app.use(express.json());
 // Routes
 app.use('/api/contact', contactRoutes);
 app.use('/api/projects', projectRoutes);
+app.use('/api/chat', projectRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {
