@@ -1,12 +1,15 @@
 const express = require('express');
-const axios = require('axios');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 const router = express.Router();
 const dotenv = require('dotenv');
 
 dotenv.config();
 
-// Your Deepseek API key - store this in your .env file
-const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
+// Your Gemini API key - store this in your .env file
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
+// Initialize the Google Generative AI client
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 // Define the system prompt with your personal information
 const getSystemPrompt = () => {
@@ -69,47 +72,60 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Message is required' });
     }
     
+    // If no Gemini API key is provided, use fallback responses
+    if (!GEMINI_API_KEY) {
+      console.log('No Gemini API key found, using fallback response');
+      const fallbackResponse = getFallbackResponse(message);
+      return res.json({
+        success: true,
+        message: fallbackResponse,
+        note: "Using predefined responses as the AI service is not configured."
+      });
+    }
+    
     try {
-      // Call Deepseek API
-      const response = await axios.post(
-        'https://api.deepseek.com/v1/chat/completions',
-        {
-          model: 'deepseek-chat',
-          messages: [
-            { role: 'system', content: getSystemPrompt() },
-            { role: 'user', content: message }
-          ],
-          temperature: 0.7,
-          max_tokens: 500
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
-          }
-        }
-      );
+      console.log('Attempting to call Gemini API...');
       
-      // Extract the assistant's response
-      const aiResponse = response.data.choices[0].message.content;
+      // Initialize the model (using Gemini 1.5 Flash which is fastest and most efficient)
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      
+      // Prepare the prompt
+      const systemPrompt = getSystemPrompt();
+      
+      // Create the generation request - Gemini uses a slightly different format than other APIs
+      const result = await model.generateContent({
+        contents: [
+          { role: "user", parts: [{ text: `${systemPrompt}\n\nUser question: ${message}` }] }
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 500,
+        },
+      });
+      
+      console.log('Gemini API call successful');
+      
+      // Extract the response
+      const aiResponse = result.response.text();
       
       res.json({ 
         success: true, 
         message: aiResponse 
       });
     } catch (apiError) {
-      console.error('Deepseek API error:', apiError.response?.data || apiError.message);
+      console.log('Using fallback response system');
+      console.error('Gemini API error:', apiError);
       
       // Use fallback response when API fails
       const fallbackResponse = getFallbackResponse(message);
-      res.json({
+      return res.json({
         success: true,
         message: fallbackResponse,
         note: "This is a fallback response as the AI service is currently unavailable."
       });
     }
   } catch (error) {
-    console.error('Server error:', error.message);
+    console.error('Server error:', error);
     res.status(500).json({ 
       success: false, 
       error: 'Internal server error', 
