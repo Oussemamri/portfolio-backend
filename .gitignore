@@ -42,3 +42,6 @@ coverage
 # OS files
 .DS_Store
 Thumbs.db
+
+# Security documentation (contains sensitive information)
+Fail2ban.md

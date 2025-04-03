@@ -2,8 +2,13 @@ const express = require('express');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const router = express.Router();
 const dotenv = require('dotenv');
+const mongoose = require('mongoose');
 
 dotenv.config();
+
+console.log("Loading chat.js route");
+console.log(`GEMINI_API_KEY exists directly in process.env: ${!!process.env.GEMINI_API_KEY}`);
+console.log(`GEMINI_API_KEY first 5 chars: ${process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.substring(0, 5) + '...' : 'not set'}`);
 
 // Your Gemini API key - store this in your .env file
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
@@ -132,6 +137,25 @@ router.post('/', async (req, res) => {
       details: error.message 
     });
   }
+});
+
+// Debug endpoint
+router.get('/debug', (req, res) => {
+  res.json({
+    nodeVersion: process.version,
+    environment: {
+      nodeEnv: process.env.NODE_ENV,
+      port: process.env.PORT
+    },
+    mongodb: {
+      uri: process.env.MONGODB_URI ? process.env.MONGODB_URI.substring(0, 15) + '...' : 'not set',
+      connected: mongoose.connection.readyState === 1
+    },
+    gemini: {
+      apiKeyExists: !!process.env.GEMINI_API_KEY,
+      apiKeyFirstChars: process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.substring(0, 5) + '...' : 'not set'
+    }
+  });
 });
 
 module.exports = router;
