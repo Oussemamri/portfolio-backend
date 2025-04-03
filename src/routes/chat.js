@@ -3,6 +3,8 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const router = express.Router();
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
+const fetch = require('node-fetch'); // Add this line
+global.fetch = fetch; // Add this line
 
 dotenv.config();
 

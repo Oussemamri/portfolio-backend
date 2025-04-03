@@ -45,3 +45,6 @@ Thumbs.db
 
 # Security documentation (contains sensitive information)
 Fail2ban.md
+
+# Portfolio backend clean directory
+portfolio-backend-clean/
